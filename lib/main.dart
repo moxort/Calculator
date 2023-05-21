@@ -1,7 +1,12 @@
 import 'package:calculator/buttons/buttons.dart';
+import 'package:calculator/db/database_helper.dart';
 import 'package:calculator/screens/converter-screen.dart';
+import 'package:calculator/screens/history_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
+
+final dbHelper = DatabaseHelper();
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +21,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/converter': (context) => ConverterScreen(),
+        '/history': (context) => HistoryScreen(),
       },
       debugShowCheckedModeBanner: false,
       home: HomePage(),
@@ -67,7 +73,14 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text("Calculator"),
             ElevatedButton(onPressed: () => Navigator.of(context).pushNamed('/converter'),
-                child: Text("km => ml"),)
+                child: Text("km => ml"),),
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.of(context).pushNamed('/history');
+              },
+            ),
+
           ],
         ),
 
@@ -203,7 +216,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 // function to calculate the input operation
-  void equalPressed() {
+  void equalPressed() async {
     String finaluserinput = userInput;
     finaluserinput = userInput.replaceAll('x', '*');
 
@@ -212,5 +225,14 @@ class _HomePageState extends State<HomePage> {
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
     answer = eval.toString();
+
+    String calculation = "$userInput = $answer";
+    String time = DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now());
+
+    int saved = await dbHelper.saveHistory(calculation, time);
+    if (saved > 0) {
+      print("History saved successfully.");
+    }
   }
+
 }

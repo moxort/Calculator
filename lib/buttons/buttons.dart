@@ -6,7 +6,7 @@ class MyButton extends StatelessWidget {
   final textColor;
   final String buttonText;
   final buttontapped;
-  
+
   MyButton({this.color, this.textColor, required this.buttonText, this.buttontapped});
 
   @override
