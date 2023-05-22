@@ -1,14 +1,21 @@
 import 'package:calculator/buttons/buttons.dart';
 import 'package:calculator/db/database_helper.dart';
+import 'package:calculator/firebase_options.dart';
 import 'package:calculator/screens/converter-screen.dart';
 import 'package:calculator/screens/history_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 
 final dbHelper = DatabaseHelper();
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -229,10 +236,17 @@ class _HomePageState extends State<HomePage> {
     String calculation = "$userInput = $answer";
     String time = DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now());
 
-    int saved = await dbHelper.saveHistory(calculation, time);
-    if (saved > 0) {
-      print("History saved successfully.");
-    }
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference historyCollection = firestore.collection('history');
+
+    Map<String, dynamic> record = {
+      'calculation': calculation,
+      'timestamp': time,
+    };
+
+    await historyCollection.add(record);
+    print("History saved successfully.");
   }
+
 
 }
