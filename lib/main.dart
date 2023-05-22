@@ -1,8 +1,9 @@
 import 'package:calculator/buttons/buttons.dart';
+import 'package:calculator/controller/persistance-controller.dart';
 import 'package:calculator/db/database_helper.dart';
 import 'package:calculator/firebase_options.dart';
-import 'package:calculator/screens/converter-screen.dart';
-import 'package:calculator/screens/history_screen.dart';
+import 'package:calculator/view/converter-page.dart';
+import 'package:calculator/view/history-page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  final PersistenceController calculatorController = PersistenceController();
+
   var userInput = '';
   var answer = '';
 
@@ -79,8 +83,9 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("Calculator"),
-            ElevatedButton(onPressed: () => Navigator.of(context).pushNamed('/converter'),
-                child: const Text("km => ml"),),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pushNamed('/converter'),
+              child: const Text("km => ml"),),
             IconButton(
               icon: const Icon(Icons.history),
               onPressed: () {
@@ -222,8 +227,8 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
-// function to calculate the input operation
-  void equalPressed() async {
+
+  void equalPressed() {
     String finaluserinput = userInput;
     finaluserinput = userInput.replaceAll('x', '*');
 
@@ -232,21 +237,8 @@ class _HomePageState extends State<HomePage> {
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
     answer = eval.toString();
-
-    String calculation = "$userInput = $answer";
-    String time = DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now());
-
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference historyCollection = firestore.collection('history');
-
-    Map<String, dynamic> record = {
-      'calculation': calculation,
-      'timestamp': time,
-    };
-
-    await historyCollection.add(record);
-    print("History saved successfully.");
+    
+    calculatorController.computeAndSave(userInput);
+    setState(() {});
   }
-
-
 }
