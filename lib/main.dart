@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-        '/converter': (context) => ConverterScreen(),
+        '/converter': (context) => const ConverterScreen(),
         '/history': (context) => HistoryScreen(),
       },
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
@@ -78,9 +78,9 @@ class _HomePageState extends State<HomePage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Calculator"),
+            const Text("Calculator"),
             ElevatedButton(onPressed: () => Navigator.of(context).pushNamed('/converter'),
-                child: Text("km => ml"),),
+                child: const Text("km => ml"),),
             IconButton(
               icon: const Icon(Icons.history),
               onPressed: () {
